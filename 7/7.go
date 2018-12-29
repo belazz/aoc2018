@@ -10,7 +10,7 @@ import (
 type Worker struct {
 	isAvailable bool
 	currentStep string
-	workTill int
+	workTill    int
 }
 
 func main() {
@@ -27,37 +27,57 @@ func main() {
 		nodes, noEdgeNodes = removeEdgeAndCollectNoEdgeNodes(poppedNode, &nodes)
 	}
 
-	fmt.Printf("Part1 answer: %v", correctOrder)
+	fmt.Printf("Part1 answer: %v\n", correctOrder)
 
 	// part 2
-	allSteps := helpers.GenerateAsciiUpper()
 	nodes, noEdgeNodes = populate()
-	seconds := 0
+
 	workersAmount := 5
-	workers := make(map[int]Worker)
-	for ;;seconds++ {
+	workers := []Worker{}
+	for i := 0; i < workersAmount; i++ {
+		workers = append(workers, Worker{currentStep: "", isAvailable: true, workTill: -1})
+	}
+
+	seconds := 0
+	concurrentOrder := ""
+	for ; ; seconds++ {
 		// check if any workers completed their tasks
-		for _, worker := range workers {
+		for id, worker := range workers {
 			if worker.workTill == seconds {
-				worker.isAvailable = true
+				concurrentOrder += worker.currentStep
+
 				// remove node as incoming edge to any other node if worker completed their task
 				// collect new no-edge nodes
 				nodes, noEdgeNodes = removeEdgeAndCollectNoEdgeNodes(worker.currentStep, &nodes)
+
+				workers[id].isAvailable = true
+				workers[id].currentStep = ""
+				workers[id].workTill = -1
 			}
 		}
+		tempNoEdgeNodes := []string{}
 		for index, node := range noEdgeNodes {
 			workerId := getAvailableWorker(workers)
 			if workerId != -1 {
 				// put worker to work with a workTill second which shows when the currentStep completes
-				workers[workerId] = Worker{isAvailable: false, currentStep: node, workTill: int([]rune(node)[0]) - 64 + 60}
+				workers[workerId] = Worker{isAvailable: false, currentStep: node, workTill: 60 + seconds + int([]rune(node)[0]) - 64}
 				// remove node from slice
-				noEdgeNodes = append(noEdgeNodes[:0], noEdgeNodes[index+1:]...)
+				tempNoEdgeNodes = append(tempNoEdgeNodes[:0], noEdgeNodes[index+1:]...)
+				// remove from map: node -> [incoming edges]
+				delete(nodes, node)
 			}
 		}
+		noEdgeNodes = tempNoEdgeNodes
+
+		if len(nodes) == 0 && !areWorkersRunning(workers) {
+			break
+		}
 	}
+
+	fmt.Printf("Part2 answer: %v -- time taken: %v\n", concurrentOrder, seconds)
 }
 
-func getAvailableWorker(workers map[int]Worker) int {
+func getAvailableWorker(workers []Worker) int {
 	for key, item := range workers {
 		if item.isAvailable {
 			return key
@@ -65,6 +85,16 @@ func getAvailableWorker(workers map[int]Worker) int {
 	}
 
 	return -1
+}
+
+func areWorkersRunning(workers []Worker) bool {
+	for _, worker := range workers {
+		if !worker.isAvailable {
+			return true
+		}
+	}
+
+	return false
 }
 
 func populate() (map[string][]string, []string) {
