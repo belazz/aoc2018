@@ -1,7 +1,7 @@
 package main
 
 import (
-	"awesomeProject/helpers"
+	"2018/helpers"
 	"fmt"
 	"regexp"
 	"sort"
