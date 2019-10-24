@@ -1,7 +1,7 @@
 package main
 
 import (
-	"2018/helpers"
+	"aoc2018/helpers"
 	"fmt"
 	"regexp"
 	"sort"
