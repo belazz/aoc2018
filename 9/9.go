@@ -1,8 +1,8 @@
 package main
 
 import (
-	"awesomeProject/datastruct"
-	"awesomeProject/helpers"
+	"aoc2018/datastruct"
+	"aoc2018/helpers"
 	"fmt"
 	"math/rand"
 	"time"

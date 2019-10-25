@@ -65,3 +65,19 @@ func ContainsIntInMap(needle int, haystack map[string]int) bool {
 
 	return false
 }
+
+func IntMin(x int, y int) int {
+	if x <= y {
+		return x
+	} else {
+		return y
+	}
+}
+
+func IntMax(x int, y int) int {
+	if x >= y {
+		return x
+	} else {
+		return y
+	}
+}
